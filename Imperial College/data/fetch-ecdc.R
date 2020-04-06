@@ -10,11 +10,11 @@ url_page <- "https://www.ecdc.europa.eu/en/publications-data/download-todays-dat
 tryCatch({
   code <- download.file(url, "data/COVID-19-up-to-date.csv")
   if (code != 0) {
-    stop("Error downloading file")
+    stop("Erro ao baixar arquivo")
   }
 },
 error = function(e) {
-  stop(sprintf("Error downloading file '%s': %s, please check %s",
+  stop(sprintf("Erro ao baixar arquivo '%s': %s, por favor verifique %s",
                url, e$message, url_page))
 })
 
@@ -22,8 +22,8 @@ error = function(e) {
 d <- read.csv("data/COVID-19-up-to-date.csv", stringsAsFactors = FALSE)
 d$t <- lubridate::decimal_date(as.Date(d$dateRep, format = "%d/%m/%Y"))
 d <- d[order(d$'countriesAndTerritories', d$t, decreasing = FALSE), ]
-names(d)[names(d) == "countriesAndTerritories"] <- "Countries.and.territories"
-names(d)[names(d) == "deaths"] <- "Deaths"
-names(d)[names(d) == "cases"] <- "Cases"
-names(d)[names(d) == "dateRep"] <- "DateRep"
+names(d)[names(d) == "countriesAndTerritories"] <- "Paises.e.territorios"
+names(d)[names(d) == "deaths"] <- "Mortes"
+names(d)[names(d) == "cases"] <- "Casos"
+names(d)[names(d) == "dateRep"] <- "DataRep"
 saveRDS(d, "data/COVID-19-up-to-date.rds")

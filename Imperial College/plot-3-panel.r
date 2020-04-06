@@ -171,11 +171,11 @@ make_plots <- function(data_country, covariates_country_long,
     guides(fill=guide_legend(ncol=1))
   
   
-  plot_labels <- c("Complete lockdown", 
-                   "Public events banned",
-                   "School closure",
-                   "Self isolation",
-                   "Social distancing")
+  plot_labels <- c("Bloqueio completo", 
+                   "Eventos públicos proibidos",
+                   "Fechamento de escolas",
+                   "Autoisolamento",
+                   "Distanciamento social")
   
   # Plotting interventions
   data_rt_95 <- data.frame(data_country$time, 
@@ -206,10 +206,10 @@ make_plots <- function(data_country, covariates_country_long,
     ylab(expression(R[t])) +
     scale_fill_manual(name = "", labels = c("50%", "95%"),
                       values = c(alpha("seagreen", 0.75), alpha("seagreen", 0.5))) + 
-    scale_shape_manual(name = "Interventions", labels = plot_labels,
+    scale_shape_manual(name = "Intervencoes", labels = plot_labels,
                        values = c(21, 22, 23, 24, 25, 12)) + 
-    scale_colour_discrete(name = "Interventions", labels = plot_labels) + 
-    scale_x_date(date_breaks = "weeks", labels = date_format("%e %b"), 
+    scale_colour_discrete(name = "Intervencoes", labels = plot_labels) + 
+    scale_x_date(date_breaks = "semanas", labels = date_format("%e %b"), 
                  limits = c(data_country$time[1], 
                             data_country$time[length(data_country$time)])) + 
     theme_pubr() + 

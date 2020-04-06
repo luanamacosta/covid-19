@@ -1,9 +1,9 @@
-#' We obtained permission from the authors to redistribute this code
+#' Nós obtivemos a permissao dos autores para redistribuir este codigo
 #' Step ribbon plots.
 #'
-#' \code{geom_stepribbon} is an extension of the \code{geom_ribbon}, and
-#' is optimized for Kaplan-Meier plots with pointwise confidence intervals
-#' or a confidence band.
+#' \code{geom_stepribbon} é uma extensão de \code{geom_ribbon}, e é 
+#' otimizada pelos plots Kaplan-Meier com intervalos de confiança pointwise
+#' ou uma banda de confiança.
 #'
 #' @section Aesthetics:
 #' \Sexpr[results=rd,stage=build]{ggplot2:::rd_aesthetics("geom", "ribbon")}
@@ -12,11 +12,11 @@
 #'   \code{\link[ggplot2:geom_ribbon]{geom_ribbon}} \code{geom_stepribbon}
 #'   inherits from \code{geom_ribbon}.
 #' @inheritParams ggplot2:::geom_ribbon
-#' @param kmplot If \code{TRUE}, missing values are replaced by the previous
-#' values. This option is needed to make Kaplan-Meier plots if the last
-#' observation has event, in which case the upper and lower values of the
-#' last observation are missing. This processing is optimized for results
-#' from the survfit function.
+#' @param kmplot If \code{TRUE}, valores faltantes sao substituidos por valores
+#' anteriores, Essa opçao é necessaria para fazer os plots Kaplan-Meier se a ultima observaçao
+#' tem um evento, nesse caso os valores superiores e inferiores da ultima
+#' observacao sao faltantes. Esse processamento é otimizado para resultados
+#' da funçao survfit.
 #' @examples
 #' huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))
 #' h <- ggplot(huron, aes(year))

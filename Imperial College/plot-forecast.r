@@ -95,7 +95,7 @@ make_single_plot <- function(data_country, data_country_forecast, filename, coun
     select(time, estimated_deaths_forecast) %>%
     gather("key" = key, "value" = value, -time)
   
-  # Force less than 1 case to zero
+  # Força caso menor que 1 a 0
   data_deaths$value[data_deaths$value < 1] <- NA
   data_deaths_forecast$value[data_deaths_forecast$value < 1] <- NA
   data_deaths_all <- rbind(data_deaths, data_deaths_forecast)
@@ -120,18 +120,18 @@ make_single_plot <- function(data_country, data_country_forecast, filename, coun
     geom_vline(xintercept = data_deaths$time[length(data_deaths$time)], 
                col = "black", linetype = "dashed", alpha = 0.5) + 
     #scale_fill_manual(name = "", 
-    #                 labels = c("Confirmed deaths", "Predicted deaths"),
+    #                 labels = c("Mortes confirmadas", "Mortes previstas"),
     #                 values = c("coral4", "deepskyblue4")) + 
-    xlab("Date") +
-    ylab("Daily number of deaths\n") + 
-    scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
+    xlab("Data") +
+    ylab("Numero diario de mortes\n") + 
+    scale_x_date(date_breaks = "semanas", labels = date_format("%e %b")) + 
     scale_y_continuous(trans='log10', labels=comma) + 
     coord_cartesian(ylim = c(1, 100000), expand = FALSE) + 
     theme_pubr() + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
     guides(fill=guide_legend(ncol=1, reverse = TRUE)) + 
     annotate(geom="text", x=data_country$time[length(data_country$time)]+8, 
-             y=10000, label="Forecast",
+             y=10000, label="Previsao",
              color="black")
   print(p)
   

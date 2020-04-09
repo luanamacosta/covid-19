@@ -25,24 +25,23 @@ make_three_pannel_plot <- function(){
   data_interventions <- read.csv("data/interventions.csv", 
                                  stringsAsFactors = FALSE)
   covariates <- data_interventions[1:11, c(1,2,3,4,5,6, 7, 8)]
-  
   for(i in 1:11){
     print(i)
     N <- length(dates[[i]])
     country <- countries[[i]]
     
-    predicted_cases <- colMeans(prediction[,1:N,i])
-    predicted_cases_li <- colQuantiles(prediction[,1:N,i], probs=.025)
-    predicted_cases_ui <- colQuantiles(prediction[,1:N,i], probs=.975)
-    predicted_cases_li2 <- colQuantiles(prediction[,1:N,i], probs=.25)
-    predicted_cases_ui2 <- colQuantiles(prediction[,1:N,i], probs=.75)
+    predicted_casos <- colMeans(prediction[,1:N,i])
+    predicted_casos_li <- colQuantiles(prediction[,1:N,i], probs=.025)
+    predicted_casos_ui <- colQuantiles(prediction[,1:N,i], probs=.975)
+    predicted_casos_li2 <- colQuantiles(prediction[,1:N,i], probs=.25)
+    predicted_casos_ui2 <- colQuantiles(prediction[,1:N,i], probs=.75)
     
     
-    estimated_deaths <- colMeans(estimated.deaths[,1:N,i])
-    estimated_deaths_li <- colQuantiles(estimated.deaths[,1:N,i], probs=.025)
-    estimated_deaths_ui <- colQuantiles(estimated.deaths[,1:N,i], probs=.975)
-    estimated_deaths_li2 <- colQuantiles(estimated.deaths[,1:N,i], probs=.25)
-    estimated_deaths_ui2 <- colQuantiles(estimated.deaths[,1:N,i], probs=.75)
+    estimated_mortes <- colMeans(estimated.mortes[,1:N,i])
+    estimated_mortes_li <- colQuantiles(estimated.mortes[,1:N,i], probs=.025)
+    estimated_mortes_ui <- colQuantiles(estimated.mortes[,1:N,i], probs=.975)
+    estimated_mortes_li2 <- colQuantiles(estimated.mortes[,1:N,i], probs=.25)
+    estimated_mortes_ui2 <- colQuantiles(estimated.mortes[,1:N,i], probs=.75)
     
     rt <- colMeans(out$Rt[,1:N,i])
     rt_li <- colQuantiles(out$Rt[,1:N,i],probs=.025)
@@ -78,32 +77,32 @@ make_three_pannel_plot <- function(){
     
     data_country <- data.frame("time" = as_date(as.character(dates[[i]])),
                                "country" = rep(country, length(dates[[i]])),
-                               "reported_cases" = reported_cases[[i]], 
-                               "reported_cases_c" = cumsum(reported_cases[[i]]), 
-                               "predicted_cases_c" = cumsum(predicted_cases),
-                               "predicted_min_c" = cumsum(predicted_cases_li),
-                               "predicted_max_c" = cumsum(predicted_cases_ui),
-                               "predicted_cases" = predicted_cases,
-                               "predicted_min" = predicted_cases_li,
-                               "predicted_max" = predicted_cases_ui,
-                               "predicted_min2" = predicted_cases_li2,
-                               "predicted_max2" = predicted_cases_ui2,
-                               "deaths" = deaths_by_country[[i]],
-                               "deaths_c" = cumsum(deaths_by_country[[i]]),
-                               "estimated_deaths_c" =  cumsum(estimated_deaths),
-                               "death_min_c" = cumsum(estimated_deaths_li),
-                               "death_max_c"= cumsum(estimated_deaths_ui),
-                               "estimated_deaths" = estimated_deaths,
-                               "death_min" = estimated_deaths_li,
-                               "death_max"= estimated_deaths_ui,
-                               "death_min2" = estimated_deaths_li2,
-                               "death_max2"= estimated_deaths_ui2,
+                               "reported_casos" = reported_casos[[i]], 
+                               "reported_casos_c" = cumsum(reported_casos[[i]]), 
+                               "predicted_casos_c" = cumsum(predicted_casos),
+                               "predicted_min_c" = cumsum(predicted_casos_li),
+                               "predicted_max_c" = cumsum(predicted_casos_ui),
+                               "predicted_casos" = predicted_casos,
+                               "predicted_min" = predicted_casos_li,
+                               "predicted_max" = predicted_casos_ui,
+                               "predicted_min2" = predicted_casos_li2,
+                               "predicted_max2" = predicted_casos_ui2,
+                               "mortes" = mortes_por_pais[[i]],
+                               "mortes_c" = cumsum(mortes_por_pais[[i]]),
+                               "estimated_mortes_c" =  cumsum(estimated_mortes),
+                               "death_min_c" = cumsum(estimated_mortes_li),
+                               "death_max_c"= cumsum(estimated_mortes_ui),
+                               "estimated_mortes" = estimated_mortes,
+                               "death_min" = estimated_mortes_li,
+                               "death_max"= estimated_mortes_ui,
+                               "death_min2" = estimated_mortes_li2,
+                               "death_max2"= estimated_mortes_ui2,
                                "rt" = rt,
                                "rt_min" = rt_li,
                                "rt_max" = rt_ui,
                                "rt_min2" = rt_li2,
                                "rt_max2" = rt_ui2)
-    
+    save(data_country, country, covariates_country_long, file = "debug.RData")
     make_plots(data_country = data_country, 
                covariates_country_long = covariates_country_long,
                filename2 = filename2,
@@ -116,25 +115,25 @@ make_three_pannel_plot <- function(){
 make_plots <- function(data_country, covariates_country_long, 
                        filename2, country){
   
-  data_cases_95 <- data.frame(data_country$time, data_country$predicted_min, 
+  data_casos_95 <- data.frame(data_country$time, data_country$predicted_min, 
                               data_country$predicted_max)
-  names(data_cases_95) <- c("time", "cases_min", "cases_max")
-  data_cases_95$key <- rep("nintyfive", length(data_cases_95$time))
-  data_cases_50 <- data.frame(data_country$time, data_country$predicted_min2, 
+  names(data_casos_95) <- c("time", "casos_min", "casos_max")
+  data_casos_95$key <- rep("nintyfive", length(data_casos_95$time))
+  data_casos_50 <- data.frame(data_country$time, data_country$predicted_min2, 
                               data_country$predicted_max2)
-  names(data_cases_50) <- c("time", "cases_min", "cases_max")
-  data_cases_50$key <- rep("fifty", length(data_cases_50$time))
-  data_cases <- rbind(data_cases_95, data_cases_50)
-  levels(data_cases$key) <- c("ninetyfive", "fifty")
+  names(data_casos_50) <- c("time", "casos_min", "casos_max")
+  data_casos_50$key <- rep("fifty", length(data_casos_50$time))
+  data_casos <- rbind(data_casos_95, data_casos_50)
+  levels(data_casos$key) <- c("ninetyfive", "fifty")
   
   p1 <- ggplot(data_country) +
-    geom_bar(data = data_country, aes(x = time, y = reported_cases), 
+    geom_bar(data = data_country, aes(x = time, y = reported_casos), 
              fill = "coral4", stat='identity', alpha=0.5) + 
-    geom_ribbon(data = data_cases, 
-                aes(x = time, ymin = cases_min, ymax = cases_max, fill = key)) +
+    geom_ribbon(data = data_casos, 
+                aes(x = time, ymin = casos_min, ymax = casos_max, fill = key)) +
     xlab("") +
-    ylab("Daily number of infections") +
-    scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) + 
+    ylab("Numero diario de infeccoes") +
+    scale_x_date(date_breaks = "semanas", labels = date_format("%e %b")) + 
     scale_fill_manual(name = "", labels = c("50%", "95%"),
                       values = c(alpha("deepskyblue4", 0.55), 
                                  alpha("deepskyblue4", 0.45))) + 
@@ -143,25 +142,25 @@ make_plots <- function(data_country, covariates_country_long,
           legend.position = "None") + 
     guides(fill=guide_legend(ncol=1))
   
-  data_deaths_95 <- data.frame(data_country$time, data_country$death_min, 
+  data_mortes_95 <- data.frame(data_country$time, data_country$death_min, 
                                data_country$death_max)
-  names(data_deaths_95) <- c("time", "death_min", "death_max")
-  data_deaths_95$key <- rep("nintyfive", length(data_deaths_95$time))
-  data_deaths_50 <- data.frame(data_country$time, data_country$death_min2, 
+  names(data_mortes_95) <- c("time", "death_min", "death_max")
+  data_mortes_95$key <- rep("nintyfive", length(data_mortes_95$time))
+  data_mortes_50 <- data.frame(data_country$time, data_country$death_min2, 
                                data_country$death_max2)
-  names(data_deaths_50) <- c("time", "death_min", "death_max")
-  data_deaths_50$key <- rep("fifty", length(data_deaths_50$time))
-  data_deaths <- rbind(data_deaths_95, data_deaths_50)
-  levels(data_deaths$key) <- c("ninetyfive", "fifty")
+  names(data_mortes_50) <- c("time", "death_min", "death_max")
+  data_mortes_50$key <- rep("fifty", length(data_mortes_50$time))
+  data_mortes <- rbind(data_mortes_95, data_mortes_50)
+  levels(data_mortes$key) <- c("ninetyfive", "fifty")
   
   
   p2 <-   ggplot(data_country, aes(x = time)) +
-    geom_bar(data = data_country, aes(y = deaths, fill = "reported"),
+    geom_bar(data = data_country, aes(y = mortes, fill = "reported"),
              fill = "coral4", stat='identity', alpha=0.5) +
     geom_ribbon(
-      data = data_deaths,
+      data = data_mortes,
       aes(ymin = death_min, ymax = death_max, fill = key)) +
-    scale_x_date(date_breaks = "weeks", labels = date_format("%e %b")) +
+    scale_x_date(date_breaks = "semanas", labels = date_format("%e %b")) +
     scale_fill_manual(name = "", labels = c("50%", "95%"),
                       values = c(alpha("deepskyblue4", 0.55), 
                                  alpha("deepskyblue4", 0.45))) + 
@@ -215,7 +214,7 @@ make_plots <- function(data_country, covariates_country_long,
     theme_pubr() + 
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     theme(legend.position="right")
-  
+  save(p1,p2,p3, file="debug2.RData")
   p <- plot_grid(p1, p2, p3, ncol = 3, rel_widths = c(1, 1, 2))
   save_plot(filename = paste0("figures/", country, "_three_pannel_", filename2, ".pdf"), 
             p, base_width = 14)

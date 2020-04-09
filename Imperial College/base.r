@@ -5,17 +5,17 @@ library(gdata)
 library(EnvStats)
 
 countries <- c(
-  "Denmark",
-  "Italy",
-  "Germany",
-  "Spain",
-  "United_Kingdom",
-  "France",
-  "Norway",
-  "Belgium",
-  "Austria", 
-  "Sweden",
-  "Switzerland"
+  "Dinamarca",
+  "Italia",
+  "Alemanha"#,
+#  "Espanha",
+#  "Reino_Unido",
+#  "Franca",
+#  "Noruega",
+#  "Belgica",
+#  "Austria", 
+#  "Suecia",
+#  "Suica"
 )
 
 args = commandArgs(trailingOnly=TRUE)
@@ -27,12 +27,13 @@ StanModel = args[1]
 print(sprintf("Running %s",StanModel))
 
 ## Reading all data
-d=readRDS('data/COVID-19-up-to-date.rds')
+#d=readRDS('data/COVID-19-up-to-date.rds')
+d=read.csv('data/COVID-19-up-to-date.csv') ## É o arquivo que está traduzido
 
 ## get CFR
 cfr.by.country = read.csv("data/weighted_fatality.csv")
 cfr.by.country$country = as.character(cfr.by.country[,2])
-cfr.by.country$country[cfr.by.country$country == "United Kingdom"] = "United_Kingdom"
+cfr.by.country$country[cfr.by.country$country == "Reino Unido"] = "Reino_Unido"
 
 serial.interval = read.csv("data/serial_interval.csv")
 covariates = read.csv('data/interventions.csv', stringsAsFactors = FALSE)
@@ -57,15 +58,15 @@ if(DEBUG == FALSE) {
   # countries = c("Austria","Belgium") #,Spain")
   N2 = 75
 }
-# countries = c("Italy","United_Kingdom","Spain","Norway","Austria","Switzerland")
+ #countries = c("Italia","Reino_Unido","Espanha","Noruega","Austria","Suica")
 
 dates = list()
-reported_cases = list()
+reported_casos = list()
 stan_data = list(M=length(countries),N=NULL,p=p,x1=poly(1:N2,2)[,1],x2=poly(1:N2,2)[,2],
-                 y=NULL,covariate1=NULL,covariate2=NULL,covariate3=NULL,covariate4=NULL,covariate5=NULL,covariate6=NULL,covariate7=NULL,deaths=NULL,f=NULL,
-                 N0=6,cases=NULL,LENGTHSCALE=7,SI=serial.interval$fit[1:N2],
+                 y=NULL,covariate1=NULL,covariate2=NULL,covariate3=NULL,covariate4=NULL,covariate5=NULL,covariate6=NULL,covariate7=NULL,mortes=NULL,f=NULL,
+                 N0=6,casos=NULL,LENGTHSCALE=7,SI=serial.interval$fit[1:N2],
                  EpidemicStart = NULL) # N0 = 6 para fazer ser consistente com Rayleigh
-deaths_by_country = list()
+mortes_por_pais = list()
 
 
 for(Country in countries) {
@@ -73,12 +74,12 @@ for(Country in countries) {
   
   covariates1 <- covariates[covariates$Country == Country, 2:8]
   
-  d1=d[d$Countries.and.territories==Country,]
-  d1$date = as.Date(d1$DateRep,format='%d/%m/%Y')
+  d1=d[d$paisesETerritorios==Country,]
+  d1$date = as.Date(d1$dataRep,format='%d/%m/%Y')
   d1$t = decimal_date(d1$date) 
   d1=d1[order(d1$t),]
-  index = which(d1$Cases>0)[1]
-  index1 = which(cumsum(d1$Deaths)>=10)[1] # tambem 5
+  index = which(d1$casos>0)[1]
+  index1 = which(cumsum(d1$mortes)>=10)[1] # tambem 5
   index2 = index1-30
   
   print(sprintf("Primeiros casos não zero são no dia %d, e 30 dias antes de 5 dias é o dia %d",index,index2))
@@ -88,12 +89,12 @@ for(Country in countries) {
   
   for (ii in 1:ncol(covariates1)) {
     covariate = names(covariates1)[ii]
-    d1[covariate] <- (as.Date(d1$DateRep, format='%d/%m/%Y') >= as.Date(covariates1[1,covariate]))*1  # should this be > or >=?
+    d1[covariate] <- (as.Date(d1$dataRep, format='%d/%m/%Y') >= as.Date(covariates1[1,covariate]))*1  # should this be > or >=?
   }
   
   dates[[Country]] = d1$date
   # estimação de risco
-  N = length(d1$Cases)
+  N = length(d1$casos)
   print(sprintf("%s tem %d dias de dados",Country,N))
   forecast = N2 - N
   if(forecast < 0) {
@@ -117,7 +118,7 @@ for(Country in countries) {
     x1 = rgammaAlt(5e6,mean1,cv1) # infection-to-onset(infecção para começar) ----> todas as pessoas infectadas começam a aparecer?
     x2 = rgammaAlt(5e6,mean2,cv2) # onset-to-death(inicialização para morte)
     f = ecdf(x1+x2)
-    convolution = function(u) (CFR * f(u))
+    convolution = function(u) (as.numeric(CFR) * f(u))
     
     h[1] = (convolution(1.5) - convolution(0)) 
     for(i in 2:length(h)) {
@@ -134,11 +135,11 @@ for(Country in countries) {
   
   
   
-  y=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
-  reported_cases[[Country]] = as.vector(as.numeric(d1$Cases))
-  deaths=c(as.vector(as.numeric(d1$Deaths)),rep(-1,forecast))
-  cases=c(as.vector(as.numeric(d1$Cases)),rep(-1,forecast))
-  deaths_by_country[[Country]] = as.vector(as.numeric(d1$Deaths))
+  y=c(as.vector(as.numeric(d1$casos)),rep(-1,forecast))
+  reported_casos[[Country]] = as.vector(as.numeric(d1$casos))
+  mortes=c(as.vector(as.numeric(d1$mortes)),rep(-1,forecast))
+  casos=c(as.vector(as.numeric(d1$casos)),rep(-1,forecast))
+  mortes_por_pais[[Country]] = as.vector(as.numeric(d1$mortes))
   covariates2 <- as.data.frame(d1[, colnames(covariates1)])
   # x=1:(N+forecast)
   covariates2[N:(N+forecast),] <- covariates2[N,]
@@ -155,8 +156,8 @@ for(Country in countries) {
   stan_data$covariate6 = cbind(stan_data$covariate6,covariates2[,6])
   stan_data$covariate7 = cbind(stan_data$covariate7,covariates2[,7]) 
   stan_data$f = cbind(stan_data$f,f)
-  stan_data$deaths = cbind(stan_data$deaths,deaths)
-  stan_data$cases = cbind(stan_data$cases,cases)
+  stan_data$mortes = cbind(stan_data$mortes,mortes)
+  stan_data$casos = cbind(stan_data$casos,casos)
   
   stan_data$N2=N2
   stan_data$x=1:N2
@@ -209,8 +210,8 @@ if(DEBUG) {
 
 out = rstan::extract(fit)
 prediction = out$prediction
-estimated.deaths = out$E_deaths
-estimated.deaths.cf = out$E_deaths0
+estimated.mortes = out$E_mortes
+estimated.mortes.cf = out$E_mortes0
 
 JOBID = Sys.getenv("PBS_JOBID")
 if(JOBID == "")
@@ -219,7 +220,7 @@ print(sprintf("Jobid = %s",JOBID))
 
 save.image(paste0('results/',StanModel,'-',JOBID,'.Rdata'))
 
-save(fit,prediction,dates,reported_cases,deaths_by_country,countries,estimated.deaths,estimated.deaths.cf,out,covariates,file=paste0('results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
+save(fit,prediction,dates,reported_casos,mortes_por_pais,countries,estimated.mortes,estimated.mortes.cf,out,covariates,file=paste0('results/',StanModel,'-',JOBID,'-stanfit.Rdata'))
 
 # to visualize results
 library(bayesplot)
